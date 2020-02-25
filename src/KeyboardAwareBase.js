@@ -111,7 +111,10 @@ export default class KeyboardAwareBase extends Component {
 
     const hasYOffset = this._keyboardAwareView && this._keyboardAwareView.contentOffset && this._keyboardAwareView.contentOffset.y !== undefined;
     const yOffset = hasYOffset ? Math.max(this._keyboardAwareView.contentOffset.y - keyboardHeight, 0) : 0;
-    this._keyboardAwareView.scrollTo({x: 0, y: yOffset, animated: true});
+
+    setTimeout(() => {
+      this.scrollTo({x: 0, y: yOffset, animated: true});            
+    }, 50);
   }
 
   scrollBottomOnNextSizeChange() {
@@ -127,11 +130,30 @@ export default class KeyboardAwareBase extends Component {
       }
 
       const bottomYOffset = this._keyboardAwareView.contentSize.height - this._keyboardAwareView.layout.height + this._keyboardAwareView.props.contentInset.bottom;
-      this._keyboardAwareView.scrollTo({x: 0, y: bottomYOffset, animated: scrollAnimated});
+      this.scrollTo({x: 0, y: bottomYOffset, animated: scrollAnimated})
     }
   }
+
   scrollTo(options) {
-    if (this._keyboardAwareView) this._keyboardAwareView.scrollTo(options);
+    if (this._keyboardAwareView) {
+      if (this._keyboardAwareView.scrollTo) {
+        this._keyboardAwareView.scrollTo(options);
+      } else {
+        const node = this._keyboardAwareView.getNode()
+        if (node) {
+          if (node.scrollTo) {
+            node.scrollTo(options);
+          } else {
+            console.debug("node.scrollTo is ", node.scrollTo)
+          }
+        } else {
+          console.debug("node is ", node)
+        }
+        console.debug("this._keyboardAwareView.scrollTo is ", this._keyboardAwareView && this._keyboardAwareView.scrollTo)
+      }
+    } else {
+      console.debug("this._keyboardAwareView is ", this._keyboardAwareView)
+    }
   }
 }
 
